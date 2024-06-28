@@ -4,7 +4,6 @@ import { userValidation } from '../middleware/user.validator.middleware';
 import userQueue from '../queue/user.queue';
 import redisClient from '../config/Redis.database';
 import jwt from 'jsonwebtoken';
-import { emit } from 'process';
 require('dotenv').config();
 
 const secretKey = process.env.JWT_SECRET_KEY as string;

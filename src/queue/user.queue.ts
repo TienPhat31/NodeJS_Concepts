@@ -1,6 +1,7 @@
 import { IUser } from '../models/user.model';
 import redisClient from '../config/Redis.database';
 import Queue from 'bull';
+require('dotenv').config();
 
 const REDIS_URI =
   'redis://S66fAWLCzbh4H70sG6DAsM58sNpeajYR@redis-14674.c252.ap-southeast-1-1.ec2.redns.redis-cloud.com:14674';

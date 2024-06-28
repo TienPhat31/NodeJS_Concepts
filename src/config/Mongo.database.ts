@@ -9,7 +9,7 @@ const connectDB = async () => {
   try {
     // Connect to MongoDB
     await mongoose.connect(MONGODB_URI);
-    console.log('Đã kết nối đến Cơ sở dữ liệu MongoDB');
+    console.log('Connected MongoDB');
 
     // Initialize Agenda
     const agenda = new Agenda({ db: { address: MONGODB_URI } });
@@ -29,7 +29,7 @@ const connectDB = async () => {
     console.log('Agenda đã được khởi động.');
 
     // Schedule job to run every 3 seconds
-    agenda.every('3 seconds', 'checkDatabaseConnection');
+    agenda.every('30 second', 'checkDatabaseConnection');
   } catch (error) {
     console.error('Lỗi khi kết nối đến Cơ sở dữ liệu:', error);
     process.exit(1);
