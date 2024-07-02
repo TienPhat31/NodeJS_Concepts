@@ -5,8 +5,10 @@ import userQueue from '../queue/user.queue';
 import redisClient from '../config/Redis.database';
 import jwt from 'jsonwebtoken';
 require('dotenv').config();
+import bcrypt from 'bcrypt';
 
-const secretKey = process.env.JWT_SECRET_KEY as string;
+
+const accessKey = process.env.JWT_ACCESS_KEY as string;
 
 class UserController {
   // Add new user
@@ -97,22 +99,74 @@ class UserController {
   }
 
   // Login
-  public async loginUser(req: Request, res: Response): Promise<void> {
-    const { userName, password } = req.body;
+  public getLoginPage(req: Request, res: Response) {
+    res.render('login.ejs');
+  }
 
-    if (userName == 'user' && password == '1234') {
-      const user = {
-        name: userName,
-      };
-      const accessToken = jwt.sign(user, secretKey, { expiresIn: '1 minute' });
-      res.status(200).json(accessToken);
-    } else {
-      res.status(500).json('Username & password incorrect');
+  public async loginUser(req: Request, res: Response): Promise<void> {
+    const { email, password } = req.body;
+    try {
+      const user = await User.findOne({ email });
+      if (user) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+          const accessToken = jwt.sign({ id: user._id, name: user.name }, accessKey, {
+            expiresIn: '120s',
+          });
+          res.cookie('token', accessToken, {
+            httpOnly: true,
+            secure: false,
+            maxAge: 30 * 60 * 1000,
+          });
+          res.redirect('/event');
+        } else {
+          res.send('Password wrong');
+        }
+      } else {
+        res.send('Your email is wrong ');
+      }
+    } catch (error) {
+      res.status(500).json({ message: error });
     }
   }
 
-  public index(req: Request, res: Response) {
-    res.send('Index page');
+  // Register
+  public getRegisterPage(req: Request, res: Response) {
+    res.render('register.ejs');
+  }
+
+  public async register(req: Request, res: Response): Promise<void> {
+    const { name, email, password } = req.body;
+
+    try {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        res.send('User already exist');
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = new User({
+        name: name,
+        email: email,
+        password: hashedPassword,
+        age: 14,
+      });
+
+      await newUser.save();
+      res.redirect('login');
+    } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  public async getIndexPage(req: Request, res: Response): Promise<void>{
+    const user = res.locals.user.name;
+
+    if (user) {
+      res.render('index', {user})
+    } else {
+      res.status(401).json({ message: 'Unauthorized' });
+    }
   }
 }
 

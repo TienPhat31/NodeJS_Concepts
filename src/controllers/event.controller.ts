@@ -1,9 +1,11 @@
 import { IVoucher, VoucherModel } from '../models/voucher.model';
 import { IEvent, EventModel } from '../models/event.model';
+import { EditingModel } from '../models/edit.model';
 import { Request, Response } from 'express';
 import { startSession } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import emailQueue from '../queue/email.queue';
+import UserModel from '../models/user.model';
 
 class VoucherController {
   public async addNewEvent(req: Request, res: Response): Promise<void> {
@@ -19,9 +21,10 @@ class VoucherController {
   }
 
   public async getAllEvent(req: Request, res: Response): Promise<void> {
+    const user = res.locals.user.name;
     try {
       const events = await EventModel.find();
-      res.status(200).json(events);
+      res.render('event', { user, events });
     } catch (error) {
       res.status(400).json(error);
     }
@@ -40,7 +43,7 @@ class VoucherController {
       if (!event || event.maxQuantity <= event.issuedQuantity) {
         await session.abortTransaction();
         res.status(456).json('No vouchers available');
-        return
+        return;
       }
 
       const voucherCode = uuidv4();
@@ -76,6 +79,63 @@ class VoucherController {
       res
         .status(500)
         .json({ error: 'Failed to request voucher', details: error });
+    }
+  }
+
+  public async getEditPage(req: Request, res: Response): Promise<void> {
+    const eventId = req.params.eventID;
+    const event = await EventModel.findById(eventId);
+
+    if (!event) {
+      res.status(404).send('Event not found');
+      return;
+    }
+    res.json({ event, user: res.locals.user });
+  }
+
+  public async checkEditable(req: Request, res: Response): Promise<void> {
+    const eventId = req.params.eventID;
+    const userId = res.locals.user.id;
+
+    try {
+      const editing = await EditingModel.findOne({ eventId });
+      const userName = await UserModel.findOne({ _id: editing?.userId });
+
+      if (editing && editing.userId !== userId) {
+        res.status(409).json({
+          message: `Event is currently being edited by another ${userName?.name}`,
+        });
+      } else {
+        await EditingModel.findOneAndUpdate(
+          { eventId },
+          { userId, expiry: new Date(Date.now() + 5 * 60 * 1000) },
+          { upsert: true, new: true }
+        );
+        res.status(200).json({ message: 'You can edit event. ' });
+      }
+    } catch (error) {
+      res.status(500).json({ message: error });
+    }
+  }
+
+  public async releaseEditing(req: Request, res: Response): Promise<void> {
+    const eventId = req.params.eventID;
+    const userId = res.locals.user.id;
+
+    try {
+      //const editing = await EditingModel.findOne({ eventId, userId });
+
+      // if (!editing) {
+      //   res
+      //     .status(404)
+      //     .json({ message: 'User is not currently editing this event.' });
+      //   return;
+      // } else {
+      await EditingModel.deleteOne({ eventId, userId });
+      res.status(200).json({ message: 'Released editing successfully.' });
+      return;
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to release editing.', error });
     }
   }
 }

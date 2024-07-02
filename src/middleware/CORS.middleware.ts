@@ -2,7 +2,7 @@ import cors from 'cors';
 import express, { Request, Response, NextFunction } from 'express';
 require('dotenv').config();
 
-const allowedOrigins = 'http://localhost:2103';
+const allowedOrigins = 'http://localhost:3000';
 
 const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {
