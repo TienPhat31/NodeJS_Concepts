@@ -1,22 +1,22 @@
-import { Request, Response, NextFunction } from 'express';
-import Joi from 'joi';
+import { Request, Response, NextFunction } from 'express'
+import Joi from 'joi'
+import { Schema } from 'joi'
 
-const eventSchema = Joi.object({
+export const eventSchema = Joi.object({
   eventID: Joi.string().required(),
   eventName: Joi.string().required(),
-  maxQuantity: Joi.number().required(),
-});
+  maxQuantity: Joi.number().required()
+})
 
-export const voucherValidate = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { error } = eventSchema.validate(req.body);
-  if (error) {
-    return res
-      .status(400)
-      .json({ error: error.details[0].message.replace(/"/g, '') });
+// Tạo middleware để xác thực request
+const validateRequest = (schema: Schema) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const { error } = schema.validate(req.body)
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message.replace(/"/g, '') })
+    }
+    next()
   }
-  next();
-};
+}
+
+export default validateRequest

@@ -11,7 +11,7 @@ const EditingSchema = new Schema<IEdit>({
   eventId: { type: String, required: true },
   userId: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
-  expiry: { type: Date, required: true },
+  expiry: { type: Date, default: Date.now }
 });
 
 const EditingModel = mongoose.model<IEdit>('Edit', EditingSchema);

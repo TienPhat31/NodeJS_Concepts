@@ -11,7 +11,6 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <body>
-
     <h1 style="text-align: center;" class="m-5">Hello, <%= user %>
     </h1>
     <div class="container mt-3">
@@ -30,7 +29,7 @@
                 <% events.forEach(event=> { %>
                     <tr>
                         <td>
-                            <%= event._id %>
+                            <%= event.eventID %>
                         </td>
                         <td>
                             <%= event.eventName %>
@@ -83,16 +82,18 @@
 </body>
 
 </html>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+<!-- MARK EDITING EVENT -->
 <script>
     const BASE_URL = 'http://localhost:3000/event';
 
     async function markEditing(eventID) {
         try {
+            // Editable API
             const response = await axios.post(`${BASE_URL}/${eventID}/editable/me`);
 
             if (response.status === 200) {
+                // Edit page API
                 const eventModalResponse = await axios.get(`${BASE_URL}/${eventID}/edit`);
                 const result = eventModalResponse.data.event;
 
@@ -103,13 +104,26 @@
                 const editEventModal = new bootstrap.Modal(document.getElementById('editEventModal'));
                 editEventModal.show();
 
+                // Maintain API
+                await axios.post(`${BASE_URL}/${eventID}/editable/maintain`);
+                alert("Công thêm thời gian thành công")
 
+                // Release API
                 const editEventModalElement = document.getElementById('editEventModal');
                 editEventModalElement.addEventListener('hidden.bs.modal', async function () {
-                    await axios.get(`${BASE_URL}/${eventID}/editable/release`);
-                    window.location.reload()
-                });
+                    try {
+                        const releaseResponse = await axios.post(`${BASE_URL}/${eventID}/editable/release`);
+                        console.log('releaseResponse:', releaseResponse);
+                        if (releaseResponse.status === 200) {
+                            window.location.reload();
+                        } else {
+                            alert('Failed to release editing:', error.message || error);
+                        }
+                    } catch (error) {
+                        console.error('Error releasing editing:', error);
 
+                    }
+                });
             } else {
                 const errorMessage = response.data.message;
                 alert(errorMessage);
@@ -119,11 +133,10 @@
                 const errorMessage = error.response.data.message;
                 alert(errorMessage);
             } else {
-                window.location.href = `/api/user/login`;
                 alert("Log out");
+                window.location.href = `/api/user/login`;
             }
         }
     }
-
 
 </script>

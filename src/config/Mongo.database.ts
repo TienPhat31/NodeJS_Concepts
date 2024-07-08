@@ -2,8 +2,7 @@ import mongoose from 'mongoose';
 import Agenda from 'agenda';
 require('dotenv').config();
 
-
-const MONGODB_URI = process.env.MONGODB_URI as string
+const MONGODB_URI = process.env.MONGODB_URI as string;
 
 const connectDB = async () => {
   try {
@@ -29,7 +28,7 @@ const connectDB = async () => {
     console.log('Agenda đã được khởi động.');
 
     // Schedule job to run every 3 seconds
-    agenda.every('30 second', 'checkDatabaseConnection');
+    agenda.every('300 second', 'checkDatabaseConnection');
   } catch (error) {
     console.error('Lỗi khi kết nối đến Cơ sở dữ liệu:', error);
     process.exit(1);
