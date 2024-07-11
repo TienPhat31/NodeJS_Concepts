@@ -1,75 +1,53 @@
-import request from 'supertest'
-import { EventModel, IEvent } from '../../src/models/event.model'
-import server from '../../src/server'
-import jwt from 'jsonwebtoken'
-import redisClient from '../../src/config/Redis.database'
-import { authenticateJWT } from '../../src/middleware/auth.middleware'
-import Joi, { ValidationError } from 'joi'
-require('dotenv').config()
+import redisClient from '../../src/config/Redis.database';
+require('dotenv').config();
+import { graphql } from 'graphql';
+import schema from '../../src/grapQL/schema/schema';
+import mongoose from 'mongoose';
 
-import userQueue from '../../src/queue/user.queue'
-import emailQueue from '../../src/queue/email.queue'
+import userQueue from '../../src/queue/user.queue';
+import emailQueue from '../../src/queue/email.queue';
+import { verbose } from 'winston';
 
-describe('POST /event', () => {
+describe('POST /events', () => {
   beforeAll(async () => {
-    await EventModel.deleteMany({})
-    userQueue.close()
-    emailQueue.close()
-  })
+    await mongoose.connect(process.env.MONGODB_URI as string);
+    jest.setTimeout(30000);
+  });
+
+  it('should add a new event and return with event data', async () => {
+    const mutation = `
+      mutation CreateEvent($eventID: String!, $eventName: String!, $maxQuantity: Int!) {
+        addEvent(eventID: $eventID, eventName: $eventName, maxQuantity: $maxQuantity) {
+          eventID
+          eventName
+          maxQuantity
+        }
+      }
+    `;
+
+    const randomSuffix = Math.floor(Math.random() * 900) + 1;
+    const eventID = `${randomSuffix}`;
+    const variables = {
+      eventID,
+      eventName: `Sample Event ${eventID}`,
+      maxQuantity: 100
+    };
+
+    const result = await graphql({ schema, source: mutation, variableValues: variables });
+    const responseData: { addEvent?: { eventID: string; eventName: string; maxQuantity: number } } =
+      result.data || {};
+
+
+     console.log("Event: ", responseData) 
+    expect(responseData.addEvent).toBeDefined();
+    expect(responseData!.addEvent!.eventName).toBe(variables.eventName);
+    expect(responseData!.addEvent!.eventID).toBe(variables.eventID);
+  });
 
   afterAll(async () => {
-    await redisClient.disconnect()
-    if (server) {
-      await new Promise((resolve) => server.close(resolve))
-    }
-  })
-
-
-  it('should add a new event and return 200 with user data', async () => {
-    const eventData = {
-      eventID: '1',
-      eventName: 'Event shoppe tháng 5',
-      maxQuantity: 15
-    }
-
-    // Mock JWT token
-    const validToken = jwt.sign({ userId: 'someuserid' }, process.env.JWT_ACCESS_KEY as string)
-
-    const saveMock = jest.spyOn(EventModel.prototype, 'save')
-    saveMock.mockResolvedValue({
-      ...eventData
-    } as IEvent)
-
-    const req = {
-      cookies: {
-        token: validToken
-      }
-    } as any
-
-    const res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn()
-    } as any
-
-    const next = jest.fn()
-
-    // Authenticate using middleware
-    await authenticateJWT(req, res, next)
-
-    const response = await request(server)
-      .post('/event')
-      .set('Cookie', [`token=${validToken}`])
-      .send(eventData)
-      .expect(200)
-
-    console.log('Response: ', response.body)
-
-    // Verify response body
-    expect(response.body).toHaveProperty('_id')
-    expect(response.body.eventName).toBe(eventData.eventName)
-    expect(response.body.maxQuantity).toBe(eventData.maxQuantity)
-    expect(response.status).toBe(200)
-
-    saveMock.mockRestore()
-  })
-})
+    await redisClient.disconnect();
+    await mongoose.disconnect();
+    await userQueue.close();
+    await emailQueue.close();
+  });
+});

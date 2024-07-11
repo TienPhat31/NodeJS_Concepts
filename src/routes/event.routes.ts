@@ -7,7 +7,7 @@ import { eventSchema } from '../middleware/event.validator.middleware'
 const voucherRouter = Router()
 
 // Get list of event
-voucherRouter.get('/', eventController.getAllEvent)
+voucherRouter.get('/', authenticateJWT, eventController.getAllEvent)
 
 // Get list of vouchers
 voucherRouter.get('/vouchers', eventController.getAllVoucher)
@@ -19,7 +19,7 @@ voucherRouter.post('/', validateRequest(eventSchema), eventController.addNewEven
 voucherRouter.post('/:eventID/voucher', eventController.requestVoucher)
 
 // Get Edit modal
-voucherRouter.get('/:eventID/edit', authenticateJWT, eventController.getEditPage)
+voucherRouter.get('/:eventID/edit', eventController.getEditModal)
 
 // Check there is user editing modal or not
 voucherRouter.post('/:eventID/editable/me', authenticateJWT, eventController.checkEditable)

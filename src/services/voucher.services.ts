@@ -7,10 +7,12 @@ import { EditingModel } from '../models/edit.model'
 import UserModel from '../models/user.model'
 
 class VoucherService {
+  // Done
   public async getAllVoucher(): Promise<IVoucher[]> {
     return await VoucherModel.find()
   }
 
+  // Done
   public async requestVoucher(eventID: string, email: string): Promise<any> {
     const eventExists = await EventModel.exists({ eventID })
     if (!eventExists) {
@@ -53,7 +55,6 @@ class VoucherService {
         .catch((err) => {
           console.error('Failed to add email job to queue:', err)
         })
-
       return voucher
     } catch (error) {
       if (session.inTransaction()) {
