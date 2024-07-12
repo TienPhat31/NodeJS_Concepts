@@ -1,14 +1,11 @@
 import { IUser } from '../models/user.model';
 import redisClient from '../config/Redis.database';
 import Queue from 'bull';
-require('dotenv').config();
+import { REDIS_URI } from '../config/const';
 
-
-const REDIS_URI = process.env.REDIS_URI;
 
 const userQueue = new Queue<IUser>('userQueue', REDIS_URI as string);
 
-// Process function for handling 'saveToRedis' job
 userQueue.process('saveToRedis', async (job) => {
   const userData: IUser = job.data;
 
@@ -16,7 +13,7 @@ userQueue.process('saveToRedis', async (job) => {
     _id: userData._id,
     name: userData.name.toString(),
     email: userData.email.toString(),
-    age: userData.age.toString(),
+    age: userData.age.toString()
   });
 
   await redisClient.sAdd(`users`, userString);

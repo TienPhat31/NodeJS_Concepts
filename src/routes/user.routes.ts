@@ -6,11 +6,13 @@ import { userValidation } from '../middleware/user.validator.middleware'
 
 const router = Router()
 
+// Login/Register endpoints
 router.get('/register', UserController.getRegisterPage)
 router.post('/register', UserController.register)
 router.get('/login', UserController.getLoginPage)
 router.post('/login', UserController.loginUser)
 
+// CRUD endpoints
 router.get('/', UserController.getAllUser)
 router.post('/', validateRequest(userValidation), UserController.addUser)
 router.put('/:id', validateRequest(userValidation), UserController.editUser)

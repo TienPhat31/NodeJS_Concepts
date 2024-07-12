@@ -1,10 +1,7 @@
 // src/queue/init.redis.ts
 import { createClient } from 'redis';
 require('dotenv').config();
-
-
-// Replace with your Redis connection details
-const REDIS_URI = process.env.REDIS_URI
+import { REDIS_URI } from './const';
 
 const redisClient = createClient({ url: REDIS_URI });
 

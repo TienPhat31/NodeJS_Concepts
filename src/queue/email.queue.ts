@@ -1,8 +1,6 @@
 import Queue from 'bull';
 import { EmailOptions, sendEmail } from '../middleware/sendEmail.middleware';
-require('dotenv').config();
-
-const REDIS_URI = process.env.REDIS_URI;
+import { REDIS_URI } from '../config/const';
 
 const emailQueue = new Queue<EmailOptions>('email', REDIS_URI as string);
 

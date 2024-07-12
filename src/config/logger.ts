@@ -1,7 +1,7 @@
 import winston from 'winston'
 
 const logger = winston.createLogger({
-  level: 'info', // Mức độ log mặc định là info
+  level: 'info', 
   format: winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.errors({ stack: true }),

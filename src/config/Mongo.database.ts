@@ -1,19 +1,16 @@
 import mongoose from 'mongoose';
 import Agenda from 'agenda';
 require('dotenv').config();
+import { MONGODB_URI } from './const';
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
-
+//
 const connectDB = async () => {
   try {
-    // Connect to MongoDB
     await mongoose.connect(MONGODB_URI);
     console.log('Connected MongoDB');
 
-    // Initialize Agenda
     const agenda = new Agenda({ db: { address: MONGODB_URI } });
 
-    // Define job to check database connection
     agenda.define('checkDatabaseConnection', async (job: any) => {
       try {
         await mongoose.connection.db.command({ ping: 1 });

@@ -3,14 +3,14 @@ require('dotenv').config();
 import { graphql } from 'graphql';
 import schema from '../../src/grapQL/schema/schema';
 import mongoose from 'mongoose';
+import { MONGODB_URI } from '../../src/config/const';
 
 import userQueue from '../../src/queue/user.queue';
 import emailQueue from '../../src/queue/email.queue';
-import { verbose } from 'winston';
 
 describe('POST /events', () => {
   beforeAll(async () => {
-    await mongoose.connect(process.env.MONGODB_URI as string);
+    await mongoose.connect(MONGODB_URI);
     jest.setTimeout(30000);
   });
 
@@ -34,11 +34,9 @@ describe('POST /events', () => {
     };
 
     const result = await graphql({ schema, source: mutation, variableValues: variables });
-    const responseData: { addEvent?: { eventID: string; eventName: string; maxQuantity: number } } =
-      result.data || {};
+    const responseData: { addEvent?: { eventID: string; eventName: string; maxQuantity: number } } = result.data || {};
 
-
-     console.log("Event: ", responseData) 
+    console.log('Event: ', responseData);
     expect(responseData.addEvent).toBeDefined();
     expect(responseData!.addEvent!.eventName).toBe(variables.eventName);
     expect(responseData!.addEvent!.eventID).toBe(variables.eventID);

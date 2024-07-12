@@ -1,54 +1,58 @@
-// import request from 'supertest';
-// import User from '../../src/models/user.model';
-// import server from '../../src/server';
-// import jwt from 'jsonwebtoken';
-// import { userValidation } from '../../src/middleware/user.validator.middleware';
-// import { authenticateJWT } from '../../src/middleware/auth.middleware';
-// import redisClient from '../../src/config/Redis.database';
-// require('dotenv').config();
-// import { graphql } from 'graphql';
-// import schema from '../../src/grapQL/schema/schema';
-// import mongoose from 'mongoose';
+import redisClient from '../../src/config/Redis.database';
+import { graphql } from 'graphql';
+import schema from '../../src/grapQL/schema/schema';
+import mongoose from 'mongoose';
+import { MONGODB_URI } from '../../src/config/const';
+import userQueue from '../../src/queue/user.queue';
+import emailQueue from '../../src/queue/email.queue';
+import UserModel, { IUser } from '../../src/models/user.model';
 
-// import userQueue from '../../src/queue/user.queue';
-// import emailQueue from '../../src/queue/email.queue';
+describe('DELETE /user/:id', () => {
+  beforeAll(async () => {
+    await mongoose.connect(MONGODB_URI);
+    jest.setTimeout(30000);
+  });
 
-// describe('DELETE /user/:id', () => {
-//   beforeAll(async () => {
-//     await mongoose.connect(process.env.MONGODB_URI as string);
-//     jest.setTimeout(30000);
-//   });
+  it('should delete user by id and return the deleted user data', async () => {
+    // Tạo user mới trước
+    const newUser = new UserModel({
+      name: 'TestDelete',
+      password: '12345',
+      email: 'nguyen.tien.phat@example.com',
+      age: 25
+    });
+    await newUser.save();
 
-//   it('should delete user by id and return the deleted user data', async () => {
-//     const query = `
-//       mutation deleteUser($id: String!) {
-//         deleteUser(id: $id) {
-//           id
-//           name
-//           password
-//           email
-//           age
-//         }
-//       }
-//     `;
+    const query = `
+      mutation deleteUser($id: String!) {
+        deleteUser(id: $id) {
+          id
+          name
+          password
+          email
+          age
+        }
+      }
+    `;
 
-//     const variables = {
-//       id: '668e4052e3a784588ae863a7'
-//     };
+    const variables = {
+      id: (newUser._id as IUser).toString()
+    };
 
-//     const result = await graphql({ schema, source: query, variableValues: variables });
-//     const responseData: { deleteUser?: { id: string; name: string; email: string; password: string } } =
-//       result.data || {};
+    console.log('ID: ', variables.id);
 
-//     expect(responseData.deleteUser).toBeDefined();
-//     expect(responseData!.deleteUser!.name).toBe('Nguyen Tien Phat 1');
-//     expect(responseData!.deleteUser!.password).toStrictEqual('12345');
-//   });
+    const result = await graphql({ schema, source: query, variableValues: variables });
+    const responseData: { deleteUser?: { name: string; email: string; password: string } } = result.data || {};
 
-//   afterAll(async () => {
-//     await redisClient.disconnect();
-//     await mongoose.disconnect();
-//     await userQueue.close();
-//     await emailQueue.close();
-//   });
-// });
+    expect(responseData.deleteUser).toBeDefined();
+    expect(responseData!.deleteUser!.name).toBe(newUser.name);
+    expect(responseData!.deleteUser!.password).toStrictEqual(newUser.password);
+  });
+
+  afterAll(async () => {
+    await redisClient.disconnect();
+    await mongoose.disconnect();
+    await userQueue.close();
+    await emailQueue.close();
+  });
+});

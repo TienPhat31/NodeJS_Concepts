@@ -1,8 +1,6 @@
 import app from './app';
 import connectDB from './config/Mongo.database';
-require('dotenv').config();
-
-const PORT = process.env.PORT || 5000;
+import { PORT } from './config/const';
 
 connectDB();
 

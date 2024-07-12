@@ -1,13 +1,13 @@
 import redisClient from '../../src/config/Redis.database';
-require('dotenv').config();
 import { graphql } from 'graphql';
 import schema from '../../src/grapQL/schema/schema';
 import mongoose from 'mongoose';
 import emailQueue from '../../src/queue/email.queue';
+import { MONGODB_URI } from '../../src/config/const';
 
 describe('POST /:eventID/editable/release', () => {
   beforeAll(async () => {
-    await mongoose.connect(process.env.MONGODB_URI as string);
+    await mongoose.connect(MONGODB_URI);
     jest.setTimeout(30000);
   });
 

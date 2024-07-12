@@ -1,12 +1,10 @@
 import cors from 'cors';
-import express, { Request, Response, NextFunction } from 'express';
 require('dotenv').config();
-
-const allowedOrigins = 'http://localhost:3000';
+import { ALLOW_PORT } from '../config/const';
 
 const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || ALLOW_PORT.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));

@@ -3,16 +3,13 @@ import { v4 as uuidv4 } from 'uuid'
 import emailQueue from '../queue/email.queue'
 import { EventModel } from '../models/event.model'
 import { VoucherModel, IVoucher } from '../models/voucher.model'
-import { EditingModel } from '../models/edit.model'
-import UserModel from '../models/user.model'
+
 
 class VoucherService {
-  // Done
   public async getAllVoucher(): Promise<IVoucher[]> {
     return await VoucherModel.find()
   }
 
-  // Done
   public async requestVoucher(eventID: string, email: string): Promise<any> {
     const eventExists = await EventModel.exists({ eventID })
     if (!eventExists) {
@@ -41,7 +38,6 @@ class VoucherService {
       const voucher = new VoucherModel({ voucherID: uuidv4(), eventID, voucherCode })
       await voucher.save({ session })
       await event.save({ session })
-
       await session.commitTransaction()
       session.endSession()
 

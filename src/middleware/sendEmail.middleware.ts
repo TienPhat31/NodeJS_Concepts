@@ -1,4 +1,4 @@
-import transporter from '../config/Mailer';
+import transporter from '../config/mailer';
 require('dotenv').config();
 
 export interface EmailOptions {
@@ -23,6 +23,5 @@ export async function sendEmail(option: EmailOptions): Promise<void> {
   } catch (error) {  
     throw new Error('Error sending email');
   }
-
 
 }

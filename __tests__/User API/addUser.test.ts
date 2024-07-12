@@ -1,22 +1,14 @@
-import request from 'supertest';
-import User from '../../src/models/user.model';
-import server from '../../src/server';
-import jwt from 'jsonwebtoken';
 import redisClient from '../../src/config/Redis.database';
-import { userValidation } from '../../src/middleware/user.validator.middleware';
-import { authenticateJWT } from '../../src/middleware/auth.middleware';
-import Joi, { ValidationError } from 'joi';
-require('dotenv').config();
 import { graphql } from 'graphql';
 import schema from '../../src/grapQL/schema/schema';
 import mongoose from 'mongoose';
-
 import userQueue from '../../src/queue/user.queue';
 import emailQueue from '../../src/queue/email.queue';
+import { MONGODB_URI } from '../../src/config/const';
 
 describe('POST /user', () => {
   beforeAll(async () => {
-    await mongoose.connect(process.env.MONGODB_URI as string);
+    await mongoose.connect(MONGODB_URI);
     jest.setTimeout(30000);
   });
 

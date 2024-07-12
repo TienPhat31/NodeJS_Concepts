@@ -2,11 +2,9 @@
 import UserModel from '../../models/user.model';
 import { IUser } from '../../models/user.model';
 import { userValidation } from '../../middleware/user.validator.middleware';
-import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { register } from 'module';
-import { agent } from 'supertest';
+
 
 const resolvers = {
   Query: {

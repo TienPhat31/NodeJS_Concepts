@@ -5,18 +5,16 @@ import UserModel from '../models/user.model';
 import mongoose from 'mongoose';
 
 class EventService {
-  // Done
+
   public async addEvent(eventData: Partial<IEvent>): Promise<IEvent> {
     const newEvent = new EventModel(eventData);
     return await newEvent.save();
   }
 
-  // Done
   public async getAllEvents(): Promise<IEvent[]> {
     return await EventModel.find();
   }
 
-  // Done
   public async getEventById(eventId: string): Promise<IEvent> {
     try {
       const event = await EventModel.findById(eventId);
@@ -29,7 +27,6 @@ class EventService {
     }
   }
 
-  // Done
   public async updateEvent(eventId: string, eventData: any): Promise<any> {
     try {
       const updatedEvent = await EventModel.findByIdAndUpdate(eventId, eventData, { new: true });
@@ -42,7 +39,6 @@ class EventService {
     }
   }
 
-  // Done
   public async deleteEvent(eventId: string): Promise<any> {
     try {
       const deletedEvent = await EventModel.findByIdAndDelete(eventId);

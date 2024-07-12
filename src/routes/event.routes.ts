@@ -25,4 +25,5 @@ voucherRouter.get('/:eventID/edit', eventController.getEditModal)
 voucherRouter.post('/:eventID/editable/me', authenticateJWT, eventController.checkEditable)
 voucherRouter.post('/:eventID/editable/release', authenticateJWT, eventController.releaseEditing)
 voucherRouter.post('/:eventID/editable/maintain', authenticateJWT, eventController.maintainEditing)
+
 export default voucherRouter

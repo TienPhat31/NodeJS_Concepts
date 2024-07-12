@@ -1,7 +1,8 @@
-import session from 'express-session'
+import session from 'express-session';
+import { SECRET_SESSION } from './const';
 
 const sessionConfig = session({
-  secret: process.env.SECRET_SESSION as string,
+  secret: SECRET_SESSION,
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -9,6 +10,6 @@ const sessionConfig = session({
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000
   }
-})
+});
 
-export default sessionConfig
+export default sessionConfig;

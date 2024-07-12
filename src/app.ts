@@ -7,7 +7,6 @@ import schema from './grapQL/schema/schema'
 import corsMiddleware from './middleware/cors.middleware'
 import voucherRouter from './routes/event.routes'
 import cookieParser from 'cookie-parser'
-require('dotenv').config()
 import sessionConfig from './config/sessionConfig'
 
 const app = Express()

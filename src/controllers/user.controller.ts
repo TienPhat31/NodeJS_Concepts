@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import userServices from '../services/user.services';
-import User, { IUser } from '../models/user.model';
+import User from '../models/user.model';
 require('dotenv').config();
 import bcrypt from 'bcrypt';
-
-const accessKey = process.env.JWT_ACCESS_KEY as string;
+import { JWT_ACCESS_KEY } from '../config/const';
 
 class UserController {
   // Add new user
@@ -65,7 +64,7 @@ class UserController {
       if (user) {
         const isMatch = password === user.password;
         if (isMatch) {
-          const accessToken = jwt.sign({ id: user._id, name: user.name }, accessKey, {
+          const accessToken = jwt.sign({ id: user._id, name: user.name }, JWT_ACCESS_KEY, {
             expiresIn: '120s'
           });
           res.cookie('token', accessToken, {
@@ -73,9 +72,9 @@ class UserController {
             secure: false,
             maxAge: 30 * 60 * 1000
           });
-          res.redirect('/events');
+          //res.redirect('/events');
 
-          //res.status(201).json({ message: 'Login successfully' });
+          res.status(201).json({ message: 'Login successfully' });
         } else {
           res.status(400).json({ message: 'Password wrong' });
         }
@@ -93,7 +92,7 @@ class UserController {
   }
 
   public async register(req: Request, res: Response): Promise<void> {
-    const { name, email, password } = req.body;
+    const { name, email, password, age } = req.body;
 
     try {
       const existingUser = await User.findOne({ email });
@@ -107,7 +106,7 @@ class UserController {
         name: name,
         email: email,
         password: hashedPassword,
-        age: 14
+        age: age
       });
       await newUser.save();
       res.status(201).json({ message: 'User registered successfully', newUser });

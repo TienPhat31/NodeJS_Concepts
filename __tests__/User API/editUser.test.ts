@@ -5,10 +5,11 @@ import userQueue from '../../src/queue/user.queue';
 import emailQueue from '../../src/queue/email.queue';
 import { graphql } from 'graphql';
 import redisClient from '../../src/config/Redis.database';
+import { MONGODB_URI } from '../../src/config/const';
 
 describe('PUT /user/:id', () => {
   beforeAll(async () => {
-    await mongoose.connect(process.env.MONGODB_URI as string);
+    await mongoose.connect(MONGODB_URI);
     jest.setTimeout(30000);
   });
 
@@ -24,7 +25,6 @@ describe('PUT /user/:id', () => {
         }
       }
     `;
-
     const variables = {
       id: '668e571833732251834bc4bb',
       name: 'Nguyễn Thủy Ngân',

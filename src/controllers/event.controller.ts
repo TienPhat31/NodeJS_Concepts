@@ -1,11 +1,8 @@
-import { IEvent, EventModel } from '../models/event.model';
-import { EditingModel } from '../models/edit.model';
+import { EventModel } from '../models/event.model';
 import { Request, Response } from 'express';
 import voucherServices from '../services/voucher.services';
-import UserModel from '../models/user.model';
 import eventServices from '../services/event.services';
-import logger from '../logger';
-import mongoose from 'mongoose';
+import logger from '../config/logger';
 
 class VoucherController {
   // Add new Event
@@ -63,7 +60,6 @@ class VoucherController {
   public async getEditModal(req: Request, res: Response): Promise<void> {
     const eventId = req.params.eventID;
     const event = await EventModel.findById(eventId);
-
     if (!event) {
       res.status(404).send('Event not found');
       return;
@@ -85,7 +81,6 @@ class VoucherController {
   public async releaseEditing(req: Request, res: Response): Promise<void> {
     const eventId = req.params.eventID;
     const userId = res.locals.user.id;
-
     try {
       const released = await eventServices.releaseEditing(eventId, userId);
 
@@ -100,10 +95,10 @@ class VoucherController {
     }
   }
 
+  // Maintain Editing event
   public async maintainEditing(req: Request, res: Response): Promise<void> {
     const eventId = req.params.eventID;
     const userId = res.locals.user.id;
-
     try {
       const errorMessage = await eventServices.maintainEditing(eventId, userId);
 

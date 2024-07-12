@@ -8,7 +8,6 @@ export const eventSchema = Joi.object({
   maxQuantity: Joi.number().required()
 })
 
-// Tạo middleware để xác thực request
 const validateRequest = (schema: Schema) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const { error } = schema.validate(req.body)

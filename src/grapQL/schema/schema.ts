@@ -12,7 +12,6 @@ import resolvers from '../resolvers/user.resolver';
 import { EventType } from '../type/event.type';
 import { VoucherType } from '../type/voucher.type';
 import eventResolvers from '../resolvers/event.resolver';
-import emailQueue from '../../queue/email.queue';
 
 const RootQueryType = new GraphQLObjectType({
   name: 'RootQuery',

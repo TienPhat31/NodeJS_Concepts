@@ -5,10 +5,11 @@ import schema from '../../src/grapQL/schema/schema';
 import mongoose from 'mongoose';
 import eventServices from '../../src/services/event.services';
 import emailQueue from '../../src/queue/email.queue';
+import { MONGODB_URI } from '../../src/config/const';
 
 describe('POST /:eventID/editable/me', () => {
   beforeAll(async () => {
-    await mongoose.connect(process.env.MONGODB_URI as string);
+    await mongoose.connect(MONGODB_URI);
     jest.setTimeout(30000);
   });
 

@@ -1,5 +1,4 @@
 import User, { IUser } from '../models/user.model'
-require('dotenv').config()
 
 class UserService {
   public async addUser(data: Partial<IUser>): Promise<IUser> {
